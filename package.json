@@ -1,0 +1,12 @@
+{
+  "name": "ownyourassets",
+  "version": "1.0.0",
+  "description": "OWN YOUR ASSETS - Discover new ways to access real-world assets",
+  "scripts": {
+    "start": "npx serve .",
+    "build": "echo 'Static site - no build needed'"
+  },
+  "dependencies": {
+    "serve": "^14.2.0"
+  }
+}
