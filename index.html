@@ -7,8 +7,935 @@
   <script src="https://cdn.tailwindcss.com"></script>
   <link rel="preconnect" href="https://fonts.googleapis.com" />
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
-  
-  
-  
-  <style>
-    
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@200;300;400;500;600;700;800;900&display=swap" rel="stylesheet" />
+  <!-- EmailJS SDK for form submissions -->
+  <script src="https://cdn.jsdelivr.net/npm/@emailjs/browser@4/dist/email.min.js"></script>
+  <script>
+    tailwind.config = {
+      theme: {
+        extend: {
+          fontFamily: { sans: ['Inter', 'system-ui', 'sans-serif'] },
+          colors: {
+            gold: { 50: '#FDF8EF', 100: '#F5E6C8', 200: '#E8CA8A', 300: '#D4A853', 400: '#C9A96E', 500: '#B8934A', 600: '#9A7A3C', 700: '#7A6130', 800: '#5A4723', 900: '#3A2E17' },
+          }
+        }
+      }
+    }
+  </script>
+  <style>
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+    html { scroll-behavior: smooth; }
+    body { background: #0A0A0A; color: #fff; font-family: 'Inter', system-ui, sans-serif; overflow-x: hidden; -webkit-font-smoothing: antialiased; }
+
+    ::-webkit-scrollbar { width: 4px; }
+    ::-webkit-scrollbar-track { background: #0A0A0A; }
+    ::-webkit-scrollbar-thumb { background: #C9A96E33; border-radius: 4px; }
+
+    /* ---- Animations ---- */
+    .fade-up { opacity: 0; transform: translateY(50px); transition: opacity 1s cubic-bezier(0.16,1,0.3,1), transform 1s cubic-bezier(0.16,1,0.3,1); }
+    .fade-up.visible { opacity: 1; transform: translateY(0); }
+    .fade-up-d1 { transition-delay: 0.1s; }
+    .fade-up-d2 { transition-delay: 0.2s; }
+    .fade-up-d3 { transition-delay: 0.3s; }
+    .fade-up-d4 { transition-delay: 0.4s; }
+    .fade-up-d5 { transition-delay: 0.5s; }
+
+    .hero-enter { animation: heroIn 1.6s cubic-bezier(0.16,1,0.3,1) forwards; }
+    .hero-enter-d1 { animation-delay: 0.2s; opacity: 0; }
+    .hero-enter-d2 { animation-delay: 0.4s; opacity: 0; }
+    .hero-enter-d3 { animation-delay: 0.65s; opacity: 0; }
+    .hero-enter-d4 { animation-delay: 0.85s; opacity: 0; }
+    .hero-enter-d5 { animation-delay: 1.1s; opacity: 0; }
+    @keyframes heroIn { from { opacity: 0; transform: translateY(40px); } to { opacity: 1; transform: translateY(0); } }
+
+    /* ---- Hero stunning visual ---- */
+    .hero-visual {
+      position: absolute; inset: 0; overflow: hidden; z-index: 0;
+    }
+    .hero-ring {
+      position: absolute; border-radius: 50%; border: 1px solid;
+      top: 50%; left: 50%; transform: translate(-50%, -50%);
+      animation: ringPulse 8s ease-in-out infinite;
+    }
+    @keyframes ringPulse {
+      0%, 100% { opacity: 0.08; transform: translate(-50%,-50%) scale(1); }
+      50% { opacity: 0.2; transform: translate(-50%,-50%) scale(1.05); }
+    }
+    .hero-glow {
+      position: absolute; top: 50%; left: 50%; transform: translate(-50%, -55%);
+      width: 700px; height: 700px; border-radius: 50%;
+      background: radial-gradient(circle, rgba(201,169,110,0.12) 0%, rgba(201,169,110,0.04) 35%, transparent 65%);
+      animation: glowPulse 6s ease-in-out infinite;
+    }
+    @keyframes glowPulse {
+      0%, 100% { opacity: 0.7; transform: translate(-50%,-55%) scale(1); }
+      50% { opacity: 1; transform: translate(-50%,-55%) scale(1.08); }
+    }
+    .hero-particles {
+      position: absolute; inset: 0; z-index: 1;
+    }
+    .particle {
+      position: absolute; width: 2px; height: 2px; background: #C9A96E;
+      border-radius: 50%; animation: particleFloat linear infinite;
+    }
+    @keyframes particleFloat {
+      0% { opacity: 0; transform: translateY(0) scale(0); }
+      10% { opacity: 0.8; transform: translateY(-20px) scale(1); }
+      90% { opacity: 0.3; }
+      100% { opacity: 0; transform: translateY(-300px) scale(0); }
+    }
+
+    /* ---- Glass panel ---- */
+    .glass-panel {
+      background: linear-gradient(145deg, rgba(255,255,255,0.04) 0%, rgba(255,255,255,0.01) 100%);
+      backdrop-filter: blur(20px); -webkit-backdrop-filter: blur(20px);
+      border: 1px solid rgba(201,169,110,0.12);
+      border-radius: 24px;
+      position: relative;
+      overflow: hidden;
+      transition: all 0.5s cubic-bezier(0.16,1,0.3,1);
+    }
+    .glass-panel::before {
+      content: ''; position: absolute; inset: 0;
+      background: linear-gradient(145deg, rgba(201,169,110,0.03) 0%, transparent 50%);
+      pointer-events: none;
+    }
+    .glass-panel:hover {
+      border-color: rgba(201,169,110,0.25);
+      box-shadow: 0 30px 80px rgba(0,0,0,0.5), 0 0 60px rgba(201,169,110,0.04);
+      transform: translateY(-4px);
+    }
+
+    /* ---- Platform tiles (Netflix-style) with dark glass image overlay ---- */
+    .platform-tile {
+      background: linear-gradient(145deg, rgba(255,255,255,0.05) 0%, rgba(255,255,255,0.015) 100%);
+      backdrop-filter: blur(16px); -webkit-backdrop-filter: blur(16px);
+      border: 1px solid rgba(201,169,110,0.1);
+      border-radius: 24px;
+      padding: 0;
+      transition: all 0.5s cubic-bezier(0.16,1,0.3,1);
+      cursor: pointer;
+      position: relative;
+      overflow: hidden;
+      min-height: 320px;
+      display: flex;
+      flex-direction: column;
+    }
+    .platform-tile .tile-bg {
+      position: absolute; inset: 0;
+      background-size: cover; background-position: center;
+      opacity: 0.15;
+      transition: opacity 0.6s ease, transform 0.6s ease;
+    }
+    .platform-tile:hover .tile-bg { opacity: 0.25; transform: scale(1.05); }
+    .platform-tile::after {
+      content: '';
+      position: absolute; inset: 0;
+      background: linear-gradient(180deg, rgba(10,10,10,0.3) 0%, rgba(10,10,10,0.85) 60%, rgba(10,10,10,0.97) 100%);
+      pointer-events: none;
+    }
+    .platform-tile:hover {
+      transform: translateY(-8px) scale(1.01);
+      border-color: rgba(201,169,110,0.3);
+      box-shadow: 0 30px 80px rgba(0,0,0,0.6), 0 0 40px rgba(201,169,110,0.06);
+    }
+    .platform-tile .tile-content {
+      position: relative; z-index: 2;
+      padding: 2.5rem;
+      margin-top: auto;
+    }
+    .platform-tile .tile-desc {
+      max-height: 0; opacity: 0; overflow: hidden;
+      transition: max-height 0.5s cubic-bezier(0.16,1,0.3,1), opacity 0.4s ease, margin-top 0.4s ease;
+      margin-top: 0;
+    }
+    .platform-tile:hover .tile-desc { max-height: 150px; opacity: 1; margin-top: 1rem; }
+
+    /* ---- Asset cards ---- */
+    .asset-card {
+      background: linear-gradient(145deg, rgba(255,255,255,0.04) 0%, rgba(255,255,255,0.01) 100%);
+      backdrop-filter: blur(12px); -webkit-backdrop-filter: blur(12px);
+      border: 1px solid rgba(201,169,110,0.08);
+      border-radius: 24px;
+      padding: 3rem 2rem;
+      transition: all 0.45s cubic-bezier(0.16,1,0.3,1);
+      cursor: pointer;
+      text-align: center;
+      position: relative;
+      overflow: hidden;
+    }
+    .asset-card::before {
+      content: ''; position: absolute; inset: 0;
+      background: linear-gradient(145deg, rgba(201,169,110,0.02) 0%, transparent 60%);
+      pointer-events: none;
+    }
+    .asset-card:hover {
+      transform: translateY(-6px);
+      border-color: rgba(201,169,110,0.25);
+      box-shadow: 0 20px 60px rgba(0,0,0,0.4), 0 0 30px rgba(201,169,110,0.04);
+    }
+    .asset-card .asset-icon {
+      width: 72px; height: 72px;
+      margin: 0 auto 1.5rem;
+      opacity: 0.8;
+      transition: opacity 0.4s ease, transform 0.4s ease;
+    }
+    .asset-card:hover .asset-icon { opacity: 1; transform: scale(1.08); }
+
+    /* ---- Gold accent icon styling ---- */
+    .icon-gold { stroke: #C9A96E; stroke-width: 1.4; fill: none; stroke-linecap: round; stroke-linejoin: round; }
+    .icon-gold-fill { fill: rgba(201,169,110,0.15); stroke: #C9A96E; stroke-width: 1.2; }
+
+    /* ---- Buttons ---- */
+    .btn-primary {
+      background: linear-gradient(135deg, #C9A96E 0%, #B8934A 100%);
+      color: #0A0A0A;
+      padding: 16px 40px; border-radius: 50px;
+      font-weight: 600; font-size: 0.95rem;
+      transition: all 0.35s cubic-bezier(0.16,1,0.3,1);
+      border: none; cursor: pointer;
+      display: inline-block; text-decoration: none;
+      box-shadow: 0 4px 20px rgba(201,169,110,0.2);
+    }
+    .btn-primary:hover { background: linear-gradient(135deg, #D4B878 0%, #C9A96E 100%); transform: translateY(-2px); box-shadow: 0 10px 40px rgba(201,169,110,0.3); }
+
+    .btn-secondary {
+      background: transparent; color: #C9A96E;
+      padding: 16px 40px; border-radius: 50px;
+      font-weight: 500; font-size: 0.95rem;
+      transition: all 0.35s cubic-bezier(0.16,1,0.3,1);
+      border: 1px solid rgba(201,169,110,0.25);
+      cursor: pointer; display: inline-block; text-decoration: none;
+    }
+    .btn-secondary:hover { border-color: rgba(201,169,110,0.5); background: rgba(201,169,110,0.05); transform: translateY(-2px); }
+
+    /* ---- Nav ---- */
+    .nav-link {
+      color: #888; font-size: 0.82rem; font-weight: 400;
+      letter-spacing: 0.01em;
+      transition: color 0.3s ease; text-decoration: none;
+    }
+    .nav-link:hover { color: #C9A96E; }
+
+    /* ---- Divider ---- */
+    .divider { height: 1px; background: linear-gradient(90deg, transparent, rgba(201,169,110,0.15), transparent); max-width: 400px; margin: 0 auto; }
+
+    /* ---- Form ---- */
+    .form-input {
+      background: rgba(255,255,255,0.03); border: 1px solid rgba(201,169,110,0.12); border-radius: 14px;
+      padding: 16px 20px; color: #fff; font-size: 0.95rem;
+      width: 100%; transition: border-color 0.3s ease, box-shadow 0.3s ease;
+      outline: none; font-family: 'Inter', sans-serif;
+      backdrop-filter: blur(8px);
+    }
+    .form-input:focus { border-color: rgba(201,169,110,0.4); box-shadow: 0 0 0 3px rgba(201,169,110,0.06); }
+    .form-input::placeholder { color: #555; }
+
+    /* ---- Mobile menu ---- */
+    .mobile-menu {
+      display: none; position: fixed; inset: 0;
+      background: rgba(10,10,10,0.98); z-index: 100;
+      padding: 7rem 2.5rem; flex-direction: column; gap: 2.5rem;
+    }
+    .mobile-menu.open { display: flex; }
+
+    /* ---- Toast ---- */
+    .toast {
+      position: fixed; bottom: 2rem; left: 50%;
+      transform: translateX(-50%) translateY(100px);
+      background: rgba(20,18,14,0.95); border: 1px solid rgba(201,169,110,0.2); color: #C9A96E;
+      padding: 16px 36px; border-radius: 14px; font-size: 0.88rem;
+      z-index: 200; transition: transform 0.5s cubic-bezier(0.16,1,0.3,1), opacity 0.5s ease;
+      opacity: 0; backdrop-filter: blur(16px);
+    }
+    .toast.show { transform: translateX(-50%) translateY(0); opacity: 1; }
+
+    /* ---- Pages ---- */
+    .page-section { display: none; }
+    .page-section.active { display: block; }
+
+    /* ---- Gold text gradient ---- */
+    .text-gold-gradient {
+      background: linear-gradient(135deg, #E8CA8A, #C9A96E, #B8934A);
+      -webkit-background-clip: text; -webkit-text-fill-color: transparent;
+      background-clip: text;
+    }
+
+    /* ---- Section label ---- */
+    .section-label {
+      color: #C9A96E; font-size: 0.7rem; letter-spacing: 0.35em;
+      text-transform: uppercase; font-weight: 500;
+    }
+
+    /* ---- Hero diamond centerpiece ---- */
+    .hero-diamond {
+      animation: diamondRotate 20s linear infinite;
+    }
+    @keyframes diamondRotate {
+      0% { transform: rotate(0deg); }
+      100% { transform: rotate(360deg); }
+    }
+    .hero-diamond-inner {
+      animation: diamondRotate 15s linear infinite reverse;
+    }
+
+    /* ---- Shimmer line accent ---- */
+    .shimmer-line {
+      height: 1px;
+      background: linear-gradient(90deg, transparent 0%, rgba(201,169,110,0.4) 50%, transparent 100%);
+      background-size: 200% 100%;
+      animation: shimmer 3s ease-in-out infinite;
+    }
+    @keyframes shimmer {
+      0%, 100% { background-position: -200% 0; }
+      50% { background-position: 200% 0; }
+    }
+
+    /* ---- Background imagery for tiles (Unsplash via CSS) ---- */
+    .bg-real-estate { background-image: url('https://images.unsplash.com/photo-1486406146926-c627a92ad1ab?w=600&q=80'); }
+    .bg-precious-metals { background-image: url('https://images.unsplash.com/photo-1610375461246-83df859d849d?w=600&q=80'); }
+    .bg-ip { background-image: url('https://images.unsplash.com/photo-1451187580459-43490279c0fa?w=600&q=80'); }
+    .bg-private-markets { background-image: url('https://images.unsplash.com/photo-1611974789855-9c2a0a7236a3?w=600&q=80'); }
+    .bg-infrastructure { background-image: url('https://images.unsplash.com/photo-1518173946687-a8874e5c4da1?w=600&q=80'); }
+    .bg-hero { background-image: url('https://images.unsplash.com/photo-1639322537228-f710d846310a?w=1200&q=80'); }
+
+    /* ---- Stat counter ---- */
+    .stat-card {
+      text-align: center; padding: 2rem;
+    }
+    .stat-number {
+      font-size: 2.5rem; font-weight: 800; letter-spacing: -0.04em;
+      background: linear-gradient(135deg, #E8CA8A, #C9A96E);
+      -webkit-background-clip: text; -webkit-text-fill-color: transparent;
+      background-clip: text;
+    }
+  </style>
+</head>
+<body>
+
+  <!-- ===================== NAVIGATION ===================== -->
+  <nav id="navbar" class="fixed top-0 left-0 right-0 z-50 transition-all duration-500" style="background: rgba(10,10,10,0.75); backdrop-filter: blur(24px); -webkit-backdrop-filter: blur(24px); border-bottom: 1px solid rgba(201,169,110,0.06);">
+    <div class="max-w-7xl mx-auto px-6 lg:px-12 flex items-center justify-between h-16">
+      <a href="#" onclick="showMain()" class="text-gold-gradient font-bold text-xs tracking-[0.2em]">OWN YOUR ASSETS</a>
+      <div class="hidden md:flex items-center gap-10">
+        <a href="#" onclick="showMain()" class="nav-link">Home</a>
+        <a href="#platforms" onclick="showMain()" class="nav-link">Platforms</a>
+        <a href="#assets" onclick="showMain()" class="nav-link">Assets</a>
+        <a href="#" onclick="showPage('resources')" class="nav-link">Resources</a>
+        <a href="#" onclick="showPage('about')" class="nav-link">About</a>
+        <a href="#waitlist" onclick="showMain()" class="btn-primary" style="padding: 9px 24px; font-size: 0.78rem; font-weight: 600;">Join Waitlist</a>
+      </div>
+      <button onclick="toggleMobile()" class="md:hidden text-white" aria-label="Menu">
+        <svg width="22" height="22" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M3 6h16M3 11h16M3 16h16"/></svg>
+      </button>
+    </div>
+  </nav>
+
+  <!-- Mobile Menu -->
+  <div id="mobile-menu" class="mobile-menu">
+    <button onclick="toggleMobile()" class="absolute top-5 right-6 text-white"><svg width="22" height="22" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M5 5l12 12M5 17L17 5"/></svg></button>
+    <a href="#" onclick="showMain();toggleMobile()" class="text-white text-2xl font-extralight tracking-wide">Home</a>
+    <a href="#platforms" onclick="showMain();toggleMobile()" class="text-white text-2xl font-extralight tracking-wide">Platforms</a>
+    <a href="#assets" onclick="showMain();toggleMobile()" class="text-white text-2xl font-extralight tracking-wide">Assets</a>
+    <a href="#" onclick="showPage('resources');toggleMobile()" class="text-white text-2xl font-extralight tracking-wide">Resources</a>
+    <a href="#" onclick="showPage('about');toggleMobile()" class="text-white text-2xl font-extralight tracking-wide">About</a>
+    <a href="#waitlist" onclick="showMain();toggleMobile()" class="text-white text-2xl font-extralight tracking-wide">Join Waitlist</a>
+  </div>
+
+  <!-- Toast -->
+  <div id="toast" class="toast"></div>
+
+  <!-- ===================== MAIN CONTENT ===================== -->
+  <div id="main-content">
+
+    <!-- ========== HERO — Striking Center Visual ========== -->
+    <section class="relative min-h-screen flex items-center justify-center overflow-hidden">
+      <!-- Background image with dark glass overlay -->
+      <div class="hero-visual">
+        <div class="bg-hero" style="position:absolute;inset:0;background-size:cover;background-position:center;opacity:0.08;"></div>
+        <div style="position:absolute;inset:0;background:radial-gradient(ellipse 80% 70% at 50% 45%, rgba(10,10,10,0.4) 0%, rgba(10,10,10,0.95) 70%);"></div>
+
+        <!-- Golden glow -->
+        <div class="hero-glow"></div>
+
+        <!-- Concentric rings -->
+        <div class="hero-ring" style="width:200px;height:200px;border-color:rgba(201,169,110,0.15);animation-delay:0s;"></div>
+        <div class="hero-ring" style="width:350px;height:350px;border-color:rgba(201,169,110,0.1);animation-delay:-2s;"></div>
+        <div class="hero-ring" style="width:520px;height:520px;border-color:rgba(201,169,110,0.06);animation-delay:-4s;"></div>
+        <div class="hero-ring" style="width:700px;height:700px;border-color:rgba(201,169,110,0.03);animation-delay:-6s;"></div>
+
+        <!-- Floating particles -->
+        <div class="hero-particles" id="particles"></div>
+      </div>
+
+      <!-- Center diamond icon -->
+      <div class="relative z-10 text-center max-w-4xl mx-auto px-6 pt-20">
+        <div class="hero-enter hero-enter-d1 flex justify-center mb-14">
+          <div class="relative" style="width:100px;height:100px;">
+            <svg class="hero-diamond" width="100" height="100" viewBox="0 0 100 100" fill="none" style="position:absolute;inset:0;">
+              <polygon points="50,5 95,50 50,95 5,50" stroke="rgba(201,169,110,0.3)" stroke-width="0.8" fill="none"/>
+            </svg>
+            <svg class="hero-diamond-inner" width="100" height="100" viewBox="0 0 100 100" fill="none" style="position:absolute;inset:0;">
+              <polygon points="50,18 82,50 50,82 18,50" stroke="rgba(201,169,110,0.5)" stroke-width="0.8" fill="none"/>
+            </svg>
+            <svg width="100" height="100" viewBox="0 0 100 100" fill="none" style="position:absolute;inset:0;">
+              <polygon points="50,30 70,50 50,70 30,50" fill="rgba(201,169,110,0.08)" stroke="rgba(201,169,110,0.6)" stroke-width="1"/>
+            </svg>
+          </div>
+        </div>
+
+        <p class="hero-enter hero-enter-d2 section-label mb-10">Discover &middot; Access &middot; Own</p>
+
+        <h1 class="hero-enter hero-enter-d3 text-5xl sm:text-7xl md:text-8xl lg:text-[7rem] font-black tracking-tight leading-[0.92] mb-10" style="letter-spacing: -0.05em;">
+          <span class="text-gold-gradient">OWN YOUR</span><br>
+          <span class="text-white">ASSETS</span>
+        </h1>
+
+        <div class="hero-enter hero-enter-d4 shimmer-line max-w-xs mx-auto mb-10"></div>
+
+        <p class="hero-enter hero-enter-d4 text-[#999] text-lg sm:text-xl md:text-2xl font-extralight max-w-2xl mx-auto mb-6 leading-relaxed">
+          Discover new ways to access real-world assets.
+        </p>
+
+        <p class="hero-enter hero-enter-d5 text-[#555] text-sm sm:text-base font-light max-w-lg mx-auto mb-16 leading-[1.8]">
+          From real estate to commodities to intellectual property — platforms around the world are introducing new models for fractional ownership.
+        </p>
+
+        <div class="hero-enter hero-enter-d5 flex flex-col sm:flex-row items-center justify-center gap-5">
+          <a href="#waitlist" class="btn-primary">Join the Waitlist</a>
+          <a href="#platforms" class="btn-secondary">Explore Platforms</a>
+        </div>
+
+        <div class="mt-28">
+          <svg class="mx-auto animate-bounce opacity-20" width="20" height="20" fill="none" stroke="#C9A96E" stroke-width="1.5"><path d="M4 7l6 6 6-6"/></svg>
+        </div>
+      </div>
+    </section>
+
+
+    <!-- ========== STATS BAND ========== -->
+    <section class="py-20 px-6 fade-up">
+      <div class="max-w-5xl mx-auto glass-panel" style="border-radius:20px;">
+        <div class="grid grid-cols-2 md:grid-cols-4">
+          <div class="stat-card border-r border-b md:border-b-0" style="border-color:rgba(201,169,110,0.08);">
+            <div class="stat-number">50+</div>
+            <p class="text-[#666] text-xs font-light mt-2">Platforms Tracked</p>
+          </div>
+          <div class="stat-card md:border-r border-b md:border-b-0" style="border-color:rgba(201,169,110,0.08);">
+            <div class="stat-number">6</div>
+            <p class="text-[#666] text-xs font-light mt-2">Asset Categories</p>
+          </div>
+          <div class="stat-card border-r" style="border-color:rgba(201,169,110,0.08);">
+            <div class="stat-number">$2T+</div>
+            <p class="text-[#666] text-xs font-light mt-2">RWA Market Size</p>
+          </div>
+          <div class="stat-card">
+            <div class="stat-number">24/7</div>
+            <p class="text-[#666] text-xs font-light mt-2">Global Access</p>
+          </div>
+        </div>
+      </div>
+    </section>
+
+
+    <!-- ========== SECTION 2 — A New Era ========== -->
+    <section class="py-36 sm:py-48 px-6">
+      <div class="max-w-6xl mx-auto grid grid-cols-1 lg:grid-cols-2 gap-16 items-center">
+        <div>
+          <div class="fade-up">
+            <p class="section-label mb-8">The Future of Ownership</p>
+          </div>
+          <div class="fade-up fade-up-d1">
+            <h2 class="text-4xl sm:text-5xl md:text-6xl font-bold mb-12 tracking-tight leading-[1.05]" style="letter-spacing: -0.03em;">
+              A New Era of<br><span class="text-gold-gradient">Asset Access</span>
+            </h2>
+          </div>
+          <div class="fade-up fade-up-d2">
+            <p class="text-[#888] text-base sm:text-lg font-light leading-[1.9] max-w-xl mb-10">
+              For decades, many valuable assets were only accessible to large institutions. Today, new digital infrastructure is enabling broader access.
+            </p>
+          </div>
+          <div class="fade-up fade-up-d3 flex flex-wrap gap-3 mb-10">
+            <span class="text-[0.78rem] text-[#C9A96E] bg-[rgba(201,169,110,0.06)] rounded-full px-5 py-2.5 border border-[rgba(201,169,110,0.12)] font-light">Real Estate</span>
+            <span class="text-[0.78rem] text-[#C9A96E] bg-[rgba(201,169,110,0.06)] rounded-full px-5 py-2.5 border border-[rgba(201,169,110,0.12)] font-light">Precious Metals</span>
+            <span class="text-[0.78rem] text-[#C9A96E] bg-[rgba(201,169,110,0.06)] rounded-full px-5 py-2.5 border border-[rgba(201,169,110,0.12)] font-light">Infrastructure</span>
+            <span class="text-[0.78rem] text-[#C9A96E] bg-[rgba(201,169,110,0.06)] rounded-full px-5 py-2.5 border border-[rgba(201,169,110,0.12)] font-light">Intellectual Property</span>
+            <span class="text-[0.78rem] text-[#C9A96E] bg-[rgba(201,169,110,0.06)] rounded-full px-5 py-2.5 border border-[rgba(201,169,110,0.12)] font-light">Private Markets</span>
+          </div>
+          <div class="fade-up fade-up-d4">
+            <p class="text-[#555] text-sm font-light leading-[1.8] max-w-md">
+              OWN YOUR ASSETS helps people discover and understand these opportunities in a clear, simple way.
+            </p>
+          </div>
+        </div>
+        <div class="fade-up fade-up-d2">
+          <div class="glass-panel p-1" style="border-radius:28px;">
+            <div style="border-radius:24px;overflow:hidden;position:relative;height:420px;">
+              <div style="position:absolute;inset:0;background-image:url('https://images.unsplash.com/photo-1460472178825-e5240623afd5?w=800&q=80');background-size:cover;background-position:center;opacity:0.2;"></div>
+              <div style="position:absolute;inset:0;background:linear-gradient(180deg,rgba(10,10,10,0.2) 0%,rgba(10,10,10,0.8) 100%);"></div>
+              <div style="position:absolute;bottom:2.5rem;left:2.5rem;right:2.5rem;z-index:2;">
+                <p class="text-[#C9A96E] text-xs tracking-[0.2em] uppercase font-medium mb-3">Real-World Assets</p>
+                <p class="text-white text-2xl font-semibold tracking-tight mb-2">$16 Trillion</p>
+                <p class="text-[#777] text-sm font-light">Expected tokenized asset market by 2030</p>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+
+    <!-- ========== SECTION 3 — Platform Discovery ========== -->
+    <section id="platforms" class="py-36 sm:py-48 px-6">
+      <div class="divider mb-28"></div>
+      <div class="max-w-6xl mx-auto">
+        <div class="fade-up text-center mb-20">
+          <p class="section-label mb-8">Platform Discovery</p>
+          <h2 class="text-4xl sm:text-5xl md:text-6xl font-bold tracking-tight" style="letter-spacing: -0.03em;">Platforms Enabling<br><span class="text-gold-gradient">Modern Ownership</span></h2>
+        </div>
+
+        <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 fade-up fade-up-d2">
+
+          <!-- Real Estate -->
+          <div class="platform-tile">
+            <div class="tile-bg bg-real-estate"></div>
+            <div class="tile-content">
+              <svg width="36" height="36" viewBox="0 0 36 36" fill="none" class="mb-4">
+                <rect x="6" y="14" width="24" height="16" rx="2" class="icon-gold"/>
+                <polyline points="8,14 18,6 28,14" class="icon-gold"/>
+                <rect x="14" y="21" width="8" height="9" rx="1" class="icon-gold"/>
+              </svg>
+              <h3 class="text-lg font-semibold mb-1 tracking-tight text-white">Real Estate Platforms</h3>
+              <p class="text-[0.8rem] text-[#888] font-light">Fractional property access</p>
+              <div class="tile-desc"><p class="text-[0.8rem] text-[#999] leading-relaxed font-light">Platforms that enable fractional participation in property assets across global markets.</p></div>
+            </div>
+          </div>
+
+          <!-- Precious Metals -->
+          <div class="platform-tile">
+            <div class="tile-bg bg-precious-metals"></div>
+            <div class="tile-content">
+              <svg width="36" height="36" viewBox="0 0 36 36" fill="none" class="mb-4">
+                <polygon points="18,4 28,16 24,16 28,30 8,30 12,16 8,16" class="icon-gold"/>
+                <circle cx="18" cy="20" r="4" class="icon-gold"/>
+              </svg>
+              <h3 class="text-lg font-semibold mb-1 tracking-tight text-white">Precious Metals</h3>
+              <p class="text-[0.8rem] text-[#888] font-light">Gold, silver & more</p>
+              <div class="tile-desc"><p class="text-[0.8rem] text-[#999] leading-relaxed font-light">Access to fractional precious metal ownership through modern digital platforms.</p></div>
+            </div>
+          </div>
+
+          <!-- IP -->
+          <div class="platform-tile">
+            <div class="tile-bg bg-ip"></div>
+            <div class="tile-content">
+              <svg width="36" height="36" viewBox="0 0 36 36" fill="none" class="mb-4">
+                <circle cx="18" cy="14" r="9" class="icon-gold"/>
+                <line x1="18" y1="23" x2="18" y2="30" class="icon-gold"/>
+                <line x1="13" y1="27" x2="23" y2="27" class="icon-gold"/>
+                <line x1="12" y1="30" x2="24" y2="30" class="icon-gold"/>
+                <path d="M13 10 Q18 4 23 10" class="icon-gold"/>
+              </svg>
+              <h3 class="text-lg font-semibold mb-1 tracking-tight text-white">Intellectual Property</h3>
+              <p class="text-[0.8rem] text-[#888] font-light">Royalties & IP rights</p>
+              <div class="tile-desc"><p class="text-[0.8rem] text-[#999] leading-relaxed font-light">Platforms enabling participation in intellectual property revenues and licensing rights.</p></div>
+            </div>
+          </div>
+
+          <!-- Private Markets -->
+          <div class="platform-tile">
+            <div class="tile-bg bg-private-markets"></div>
+            <div class="tile-content">
+              <svg width="36" height="36" viewBox="0 0 36 36" fill="none" class="mb-4">
+                <rect x="6" y="6" width="24" height="24" rx="3" class="icon-gold"/>
+                <line x1="14" y1="26" x2="14" y2="16" stroke="#C9A96E" stroke-width="3" stroke-linecap="round" opacity="0.6"/>
+                <line x1="22" y1="26" x2="22" y2="11" stroke="#C9A96E" stroke-width="3" stroke-linecap="round" opacity="0.6"/>
+                <polyline points="10,18 14,13 22,17 28,10" class="icon-gold" fill="none"/>
+              </svg>
+              <h3 class="text-lg font-semibold mb-1 tracking-tight text-white">Private Markets</h3>
+              <p class="text-[0.8rem] text-[#888] font-light">Pre-IPO & alternatives</p>
+              <div class="tile-desc"><p class="text-[0.8rem] text-[#999] leading-relaxed font-light">Access to private equity, venture capital, and alternative investment opportunities.</p></div>
+            </div>
+          </div>
+
+          <!-- Infrastructure -->
+          <div class="platform-tile">
+            <div class="tile-bg bg-infrastructure"></div>
+            <div class="tile-content">
+              <svg width="36" height="36" viewBox="0 0 36 36" fill="none" class="mb-4">
+                <rect x="6" y="24" width="24" height="3" rx="1" class="icon-gold"/>
+                <rect x="10" y="16" width="3" height="8" rx="0.5" class="icon-gold"/>
+                <rect x="17" y="16" width="3" height="8" rx="0.5" class="icon-gold"/>
+                <rect x="24" y="16" width="3" height="8" rx="0.5" class="icon-gold"/>
+                <path d="M8 16 Q18 8 28 16" class="icon-gold"/>
+              </svg>
+              <h3 class="text-lg font-semibold mb-1 tracking-tight text-white">Infrastructure</h3>
+              <p class="text-[0.8rem] text-[#888] font-light">Energy & transportation</p>
+              <div class="tile-desc"><p class="text-[0.8rem] text-[#999] leading-relaxed font-light">Platforms offering participation in infrastructure projects including energy and transportation.</p></div>
+            </div>
+          </div>
+
+          <!-- Coming Soon -->
+          <div class="platform-tile" style="background: transparent; border-style: dashed; border-color: rgba(201,169,110,0.12); justify-content: center; align-items: center; text-align: center; min-height: 320px;">
+            <div class="tile-content" style="text-align: center; margin: auto;">
+              <p class="text-[#C9A96E] text-sm font-medium mb-1">More Platforms</p>
+              <p class="text-[#555] text-xs font-light">Coming Soon</p>
+            </div>
+          </div>
+
+        </div>
+      </div>
+    </section>
+
+
+    <!-- ========== SECTION 4 — Asset Categories ========== -->
+    <section id="assets" class="py-36 sm:py-48 px-6">
+      <div class="divider mb-28"></div>
+      <div class="max-w-5xl mx-auto">
+        <div class="fade-up text-center mb-24">
+          <p class="section-label mb-8">Browse by Category</p>
+          <h2 class="text-4xl sm:text-5xl md:text-6xl font-bold tracking-tight" style="letter-spacing: -0.03em;">Asset <span class="text-gold-gradient">Categories</span></h2>
+        </div>
+
+        <div class="grid grid-cols-2 lg:grid-cols-3 gap-6 fade-up fade-up-d2">
+          <div class="asset-card">
+            <div class="asset-icon">
+              <svg viewBox="0 0 72 72" fill="none"><rect x="12" y="28" width="48" height="32" rx="3" class="icon-gold"/><polyline points="16,28 36,12 56,28" class="icon-gold"/><rect x="28" y="42" width="16" height="18" rx="2" class="icon-gold-fill"/></svg>
+            </div>
+            <h3 class="text-base font-semibold mb-2 tracking-tight">Real Estate</h3>
+            <p class="text-[0.75rem] text-[#777] font-light">Residential & Commercial</p>
+          </div>
+
+          <div class="asset-card">
+            <div class="asset-icon">
+              <svg viewBox="0 0 72 72" fill="none"><circle cx="36" cy="36" r="18" class="icon-gold"/><circle cx="36" cy="36" r="10" class="icon-gold"/><line x1="30" y1="33" x2="42" y2="33" class="icon-gold"/><line x1="30" y1="39" x2="42" y2="39" class="icon-gold"/><line x1="36" y1="26" x2="36" y2="18" class="icon-gold"/></svg>
+            </div>
+            <h3 class="text-base font-semibold mb-2 tracking-tight">Gold & Precious Metals</h3>
+            <p class="text-[0.75rem] text-[#777] font-light">Physical & Digital</p>
+          </div>
+
+          <div class="asset-card">
+            <div class="asset-icon">
+              <svg viewBox="0 0 72 72" fill="none"><rect x="10" y="45" width="52" height="6" rx="1.5" class="icon-gold"/><rect x="17" y="30" width="6" height="15" rx="1" class="icon-gold"/><rect x="33" y="30" width="6" height="15" rx="1" class="icon-gold"/><rect x="49" y="30" width="6" height="15" rx="1" class="icon-gold"/><path d="M14 30 Q36 16 58 30" class="icon-gold" fill="none"/></svg>
+            </div>
+            <h3 class="text-base font-semibold mb-2 tracking-tight">Infrastructure</h3>
+            <p class="text-[0.75rem] text-[#777] font-light">Energy & Transport</p>
+          </div>
+
+          <div class="asset-card">
+            <div class="asset-icon">
+              <svg viewBox="0 0 72 72" fill="none"><rect x="14" y="16" width="44" height="40" rx="3" class="icon-gold"/><line x1="14" y1="26" x2="58" y2="26" class="icon-gold"/><polyline points="24,46 32,36 40,42 50,30" class="icon-gold" fill="none" stroke-linecap="round" stroke-linejoin="round"/></svg>
+            </div>
+            <h3 class="text-base font-semibold mb-2 tracking-tight">Private Equity</h3>
+            <p class="text-[0.75rem] text-[#777] font-light">Growth & Venture</p>
+          </div>
+
+          <div class="asset-card">
+            <div class="asset-icon">
+              <svg viewBox="0 0 72 72" fill="none"><circle cx="36" cy="32" r="16" class="icon-gold"/><line x1="36" y1="48" x2="36" y2="58" class="icon-gold"/><line x1="28" y1="54" x2="44" y2="54" class="icon-gold"/><line x1="26" y1="58" x2="46" y2="58" class="icon-gold"/><path d="M30 24 Q36 16 42 24" class="icon-gold" fill="none"/></svg>
+            </div>
+            <h3 class="text-base font-semibold mb-2 tracking-tight">Intellectual Property</h3>
+            <p class="text-[0.75rem] text-[#777] font-light">Royalties & Licenses</p>
+          </div>
+
+          <div class="asset-card">
+            <div class="asset-icon">
+              <svg viewBox="0 0 72 72" fill="none"><circle cx="36" cy="36" r="20" class="icon-gold"/><ellipse cx="36" cy="36" rx="10" ry="20" class="icon-gold"/><line x1="16" y1="36" x2="56" y2="36" class="icon-gold"/><line x1="20" y1="26" x2="52" y2="26" stroke="#C9A96E" stroke-width="1.2" opacity="0.4"/><line x1="20" y1="46" x2="52" y2="46" stroke="#C9A96E" stroke-width="1.2" opacity="0.4"/></svg>
+            </div>
+            <h3 class="text-base font-semibold mb-2 tracking-tight">Digital Assets</h3>
+            <p class="text-[0.75rem] text-[#777] font-light">Tokenized & Digital</p>
+          </div>
+        </div>
+      </div>
+    </section>
+
+
+    <!-- ========== SECTION 5 — Why ========== -->
+    <section class="py-36 sm:py-48 px-6">
+      <div class="divider mb-28"></div>
+      <div class="max-w-5xl mx-auto grid grid-cols-1 lg:grid-cols-2 gap-16 items-center">
+        <div class="fade-up">
+          <div class="glass-panel p-1" style="border-radius:28px;">
+            <div style="border-radius:24px;overflow:hidden;position:relative;height:400px;">
+              <div style="position:absolute;inset:0;background-image:url('https://images.unsplash.com/photo-1551836022-d5d88e9218df?w=800&q=80');background-size:cover;background-position:center;opacity:0.2;"></div>
+              <div style="position:absolute;inset:0;background:linear-gradient(135deg,rgba(10,10,10,0.3) 0%,rgba(10,10,10,0.85) 100%);"></div>
+              <div style="position:absolute;bottom:2.5rem;left:2.5rem;right:2.5rem;z-index:2;">
+                <svg width="40" height="40" viewBox="0 0 40 40" fill="none" class="mb-4">
+                  <circle cx="20" cy="20" r="16" stroke="#C9A96E" stroke-width="1.2"/>
+                  <path d="M14 20 L18 24 L26 16" stroke="#C9A96E" stroke-width="1.5" fill="none" stroke-linecap="round" stroke-linejoin="round"/>
+                </svg>
+                <p class="text-white text-lg font-semibold tracking-tight mb-1">Built for Everyone</p>
+                <p class="text-[#888] text-sm font-light leading-relaxed">Making asset ownership accessible, transparent, and easy to understand.</p>
+              </div>
+            </div>
+          </div>
+        </div>
+        <div>
+          <div class="fade-up">
+            <p class="section-label mb-8">Our Mission</p>
+          </div>
+          <div class="fade-up fade-up-d1">
+            <h2 class="text-4xl sm:text-5xl md:text-6xl font-bold mb-12 tracking-tight leading-[1.05]" style="letter-spacing: -0.03em;">
+              Why This<br><span class="text-gold-gradient">Platform Exists</span>
+            </h2>
+          </div>
+          <div class="fade-up fade-up-d2">
+            <p class="text-[#888] text-base sm:text-lg font-light leading-[1.9] mb-8">
+              Access to valuable assets has historically been limited by geography, capital requirements, and financial infrastructure.
+            </p>
+          </div>
+          <div class="fade-up fade-up-d3">
+            <p class="text-[#666] text-sm sm:text-base font-light leading-[1.9] mb-10">
+              New technologies are changing that. OWN YOUR ASSETS is building a platform designed to help individuals discover new models of asset ownership in a clear, simple way.
+            </p>
+          </div>
+          <div class="fade-up fade-up-d4">
+            <p class="text-[#C9A96E] text-sm font-light tracking-[0.15em]">
+              Information &middot; Transparency &middot; Accessibility
+            </p>
+          </div>
+        </div>
+      </div>
+    </section>
+
+
+    <!-- ========== SECTION 6 — Waitlist ========== -->
+    <section id="waitlist" class="py-36 sm:py-48 px-6">
+      <div class="divider mb-28"></div>
+      <div class="max-w-lg mx-auto fade-up">
+        <div class="glass-panel" style="padding: 3.5rem 3rem; border-radius: 28px;">
+          <div class="text-center">
+            <p class="section-label mb-8">Early Access</p>
+            <h2 class="text-3xl sm:text-4xl md:text-5xl font-bold mb-5 tracking-tight leading-[1.05]" style="letter-spacing: -0.03em;">
+              Be First to<br><span class="text-gold-gradient">Access</span>
+            </h2>
+            <p class="text-[#666] text-sm font-light mb-10 leading-[1.8]">
+              We are currently preparing the first release of the OWN YOUR ASSETS platform. Join the waitlist to receive early access and updates.
+            </p>
+
+            <form id="waitlist-form" onsubmit="handleWaitlist(event)" class="space-y-4 mb-6 text-left">
+              <input type="text" name="name" placeholder="Your name" required class="form-input" />
+              <input type="email" name="email" placeholder="Your email" required class="form-input" />
+              <select name="interest" class="form-input" style="appearance: none; cursor: pointer;">
+                <option value="" disabled selected style="color:#555;">What interests you most?</option>
+                <option value="real-estate">Real Estate</option>
+                <option value="precious-metals">Precious Metals</option>
+                <option value="ip">Intellectual Property</option>
+                <option value="private-markets">Private Markets</option>
+                <option value="infrastructure">Infrastructure</option>
+                <option value="digital-assets">Digital Assets</option>
+                <option value="all">All Categories</option>
+              </select>
+              <button type="submit" class="btn-primary w-full" style="border-radius: 14px; padding: 18px; font-size: 0.95rem;">Join Waitlist</button>
+            </form>
+            <p class="text-[#444] text-xs font-light">No spam. Early access only.</p>
+            <button onclick="exportCSV()" class="text-[#333] text-xs mt-6 underline cursor-pointer hover:text-[#C9A96E] transition-colors" style="background:none;border:none;">Export Waitlist CSV</button>
+          </div>
+        </div>
+      </div>
+    </section>
+
+  </div>
+  <!-- END MAIN -->
+
+
+  <!-- ===================== ABOUT PAGE ===================== -->
+  <div id="about-page" class="page-section">
+    <section class="min-h-screen flex items-center justify-center px-6 pt-28 pb-24">
+      <div class="max-w-2xl mx-auto text-center">
+        <p class="section-label mb-8">Our Story</p>
+        <h2 class="text-4xl sm:text-5xl md:text-6xl font-bold mb-14 tracking-tight" style="letter-spacing: -0.03em;">About <span class="text-gold-gradient">OWN YOUR ASSETS</span></h2>
+        <p class="text-[#888] text-base sm:text-lg font-light leading-[1.9] mb-10">
+          OWN YOUR ASSETS is focused on the evolution of asset ownership.
+        </p>
+        <p class="text-[#666] text-sm sm:text-base font-light leading-[1.9] mb-10">
+          Around the world, new platforms are emerging that allow individuals to access assets that were once limited to large institutions. Our mission is to make this new landscape easier to understand and navigate.
+        </p>
+        <p class="text-[#666] text-sm sm:text-base font-light leading-[1.9] mb-16">
+          By highlighting platforms, asset categories, and ownership models, we aim to help people better understand the future of investing and asset participation.
+        </p>
+        <a href="#" onclick="showMain()" class="btn-secondary">Back to Home</a>
+      </div>
+    </section>
+  </div>
+
+
+  <!-- ===================== RESOURCES PAGE ===================== -->
+  <div id="resources-page" class="page-section">
+    <section class="min-h-screen flex items-center justify-center px-6 pt-28 pb-24">
+      <div class="max-w-2xl mx-auto text-center">
+        <p class="section-label mb-8">Learn</p>
+        <h2 class="text-4xl sm:text-5xl md:text-6xl font-bold mb-14 tracking-tight" style="letter-spacing: -0.03em;">Resources</h2>
+        <p class="text-[#888] text-base sm:text-lg font-light leading-[1.9] mb-14">
+          Understanding new models of asset ownership requires clear information.
+        </p>
+        <div class="grid grid-cols-1 sm:grid-cols-2 gap-5 max-w-sm mx-auto mb-14">
+          <div class="glass-panel" style="padding: 2rem 1.5rem; text-align:center; border-radius:16px;"><p class="text-sm font-medium tracking-tight text-[#C9A96E]">Fractional Ownership</p></div>
+          <div class="glass-panel" style="padding: 2rem 1.5rem; text-align:center; border-radius:16px;"><p class="text-sm font-medium tracking-tight text-[#C9A96E]">Asset Tokenization</p></div>
+          <div class="glass-panel" style="padding: 2rem 1.5rem; text-align:center; border-radius:16px;"><p class="text-sm font-medium tracking-tight text-[#C9A96E]">Modern Infrastructure</p></div>
+          <div class="glass-panel" style="padding: 2rem 1.5rem; text-align:center; border-radius:16px;"><p class="text-sm font-medium tracking-tight text-[#C9A96E]">Risk Considerations</p></div>
+        </div>
+        <p class="text-[#444] text-sm font-light mb-14">Content will be added in future updates.</p>
+        <a href="#" onclick="showMain()" class="btn-secondary">Back to Home</a>
+      </div>
+    </section>
+  </div>
+
+
+  <!-- ===================== FOOTER ===================== -->
+  <footer class="border-t py-20 px-6" style="border-color: rgba(201,169,110,0.08);">
+    <div class="max-w-5xl mx-auto">
+      <div class="flex flex-col md:flex-row items-start justify-between gap-12 mb-16">
+        <div>
+          <p class="text-gold-gradient font-bold text-xs tracking-[0.2em] mb-4">OWN YOUR ASSETS</p>
+          <p class="text-[#555] text-xs font-light max-w-xs leading-[1.8]">
+            Discover new ways to access real-world assets through modern financial platforms.
+          </p>
+        </div>
+        <div class="flex gap-10">
+          <a href="#" class="text-[#555] text-xs font-light hover:text-[#C9A96E] transition-colors">Privacy Policy</a>
+          <a href="#" class="text-[#555] text-xs font-light hover:text-[#C9A96E] transition-colors">Terms of Service</a>
+          <a href="mailto:contact@altinadpartners.com" class="text-[#555] text-xs font-light hover:text-[#C9A96E] transition-colors">Contact</a>
+        </div>
+      </div>
+      <div class="divider mb-10"></div>
+      <p class="text-[#444] text-xs font-light leading-[1.8] mb-4">
+        OWN YOUR ASSETS provides information and insights related to modern asset ownership and emerging financial infrastructure.
+      </p>
+      <p class="text-[#444] text-xs font-light leading-[1.8]">
+        <span class="text-[#C9A96E]">Disclaimer:</span> This website is for informational purposes only and does not constitute investment advice.
+      </p>
+      <p class="text-[#333] text-xs font-light mt-12">&copy; 2026 OWN YOUR ASSETS. All rights reserved.</p>
+    </div>
+  </footer>
+
+
+<script>
+  // ============================================================
+  // FUTURE PHASES:
+  // Later versions will include:
+  //   - Platform listings with detailed profiles
+  //   - Asset marketplace integrations
+  //   - Portfolio tools for tracking owned assets
+  //   - Analytics dashboards for performance monitoring
+  //   - User accounts and personalized recommendations
+  // ============================================================
+
+  // Generate floating gold particles
+  (function() {
+    const container = document.getElementById('particles');
+    if (!container) return;
+    for (let i = 0; i < 30; i++) {
+      const p = document.createElement('div');
+      p.className = 'particle';
+      p.style.left = Math.random() * 100 + '%';
+      p.style.top = (40 + Math.random() * 50) + '%';
+      p.style.animationDuration = (4 + Math.random() * 6) + 's';
+      p.style.animationDelay = Math.random() * 8 + 's';
+      p.style.width = (1 + Math.random() * 2) + 'px';
+      p.style.height = p.style.width;
+      container.appendChild(p);
+    }
+  })();
+
+  // Intersection Observer — fade in on scroll
+  const observer = new IntersectionObserver((entries) => {
+    entries.forEach(entry => {
+      if (entry.isIntersecting) entry.target.classList.add('visible');
+    });
+  }, { threshold: 0.08, rootMargin: '0px 0px -60px 0px' });
+  document.querySelectorAll('.fade-up').forEach(el => observer.observe(el));
+
+  // Mobile menu
+  function toggleMobile() { document.getElementById('mobile-menu').classList.toggle('open'); }
+
+  // Page navigation
+  function showMain() {
+    document.getElementById('main-content').style.display = 'block';
+    document.getElementById('about-page').classList.remove('active');
+    document.getElementById('resources-page').classList.remove('active');
+    window.scrollTo({ top: 0, behavior: 'smooth' });
+  }
+  function showPage(page) {
+    document.getElementById('main-content').style.display = 'none';
+    document.getElementById('about-page').classList.remove('active');
+    document.getElementById('resources-page').classList.remove('active');
+    document.getElementById(page + '-page').classList.add('active');
+    window.scrollTo({ top: 0, behavior: 'smooth' });
+  }
+
+  // Waitlist — localStorage + Email via Formspree
+  function getWaitlist() { try { return JSON.parse(localStorage.getItem('oya_waitlist') || '[]'); } catch { return []; } }
+
+  function handleWaitlist(e) {
+    e.preventDefault();
+    const form = e.target;
+    const name = form.name.value.trim();
+    const email = form.email.value.trim();
+    const interest = form.interest ? form.interest.value : '';
+    if (!name || !email) return;
+
+    const waitlist = getWaitlist();
+    if (waitlist.some(entry => entry.email.toLowerCase() === email.toLowerCase())) {
+      showToast("You're already on the waitlist!");
+      return;
+    }
+
+    // Save locally
+    waitlist.push({ name, email, interest, date: new Date().toISOString() });
+    localStorage.setItem('oya_waitlist', JSON.stringify(waitlist));
+
+    // Send email notification via mailto fallback + Formspree
+    sendEmailNotification(name, email, interest);
+
+    form.reset();
+    showToast('Welcome! You\'re on the waitlist.');
+  }
+
+  function sendEmailNotification(name, email, interest) {
+    // Primary: Formspree endpoint (replace YOUR_FORM_ID with actual Formspree form ID)
+    // To set up: Go to formspree.io, create a form pointing to contact@altinadpartners.com
+    const formData = new FormData();
+    formData.append('name', name);
+    formData.append('email', email);
+    formData.append('interest', interest);
+    formData.append('_subject', 'New OYA Waitlist Signup: ' + name);
+    formData.append('_replyto', email);
+    formData.append('message', 'New waitlist signup:\n\nName: ' + name + '\nEmail: ' + email + '\nInterest: ' + (interest || 'Not specified') + '\nDate: ' + new Date().toLocaleString());
+
+    // Try Formspree — update the URL once you create a form at formspree.io
+    fetch('https://formspree.io/f/xpwdgqkr', {
+      method: 'POST',
+      body: formData,
+      headers: { 'Accept': 'application/json' }
+    }).catch(() => {
+      // Silent fallback — data saved locally regardless
+    });
+  }
+
+  function exportCSV() {
+    const waitlist = getWaitlist();
+    if (waitlist.length === 0) { showToast('No waitlist entries yet.'); return; }
+    let csv = 'Name,Email,Interest,Date\n';
+    waitlist.forEach(e => { csv += `"${e.name}","${e.email}","${e.interest || ''}","${e.date}"\n`; });
+    const blob = new Blob([csv], { type: 'text/csv' });
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement('a'); a.href = url; a.download = 'ownyourassets_waitlist.csv'; a.click();
+    URL.revokeObjectURL(url);
+    showToast('CSV exported successfully.');
+  }
+
+  function showToast(msg) {
+    const t = document.getElementById('toast'); t.textContent = msg; t.classList.add('show');
+    setTimeout(() => t.classList.remove('show'), 3000);
+  }
+
+  // Navbar scroll effect
+  window.addEventListener('scroll', () => {
+    const n = document.getElementById('navbar');
+    n.style.borderBottomColor = window.scrollY > 80 ? 'rgba(201,169,110,0.1)' : 'rgba(201,169,110,0.06)';
+  });
+</script>
+
+</body>
+</html>
